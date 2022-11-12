@@ -15,6 +15,10 @@ export class ImageGallery extends Component {
   }
 
   async componentDidUpdate(prevProps, prevState) { 
+    if (prevProps.inputValue !== this.props.inputValue) {
+      this.setState({ gallery: []})
+    }
+    
     if (prevProps.inputValue !== this.props.inputValue || prevProps.page !== this.props.page) {
       try {
         this.setState({ isLoading: true});
@@ -46,8 +50,8 @@ export class ImageGallery extends Component {
 
   render() {
     const { gallery, isLoading, error } = this.state;
-    return(
-      <ul className="gallery">
+    return(<>
+          <ul className="gallery">
         { error && toast.error(`${error.message}`, {
             hideProgressBar: false,
             closeOnClick: true,
@@ -57,20 +61,23 @@ export class ImageGallery extends Component {
             theme: "colored",
         })}
 
-        { isLoading && <ThreeDots 
-            height="80" 
-            width="80" 
-            radius="9"
-            color="#4fa94d" 
-            ariaLabel="three-dots-loading"
-            wrapperStyle={{}}
-            wrapperClassName=""
-            visible={true}/>
-        }
-
-        { gallery.length > 1 && <ImageGalleryItem imgs = {gallery}/>} 
-        { gallery.length > 11 && <BtnLoadMore onClick={this.LoadMore}/>}   
-      </ul>
+        { gallery.length > 1 && <ImageGalleryItem imgs = {gallery} onClick={this.props.onClick}/>} 
+        </ul>
+        
+        <div className='container'>
+          { gallery.length > 11 && <BtnLoadMore onClick={this.LoadMore}/>}   
+          { isLoading && <ThreeDots 
+              height="80" 
+              width="80" 
+              radius="9"
+              color="#4fa94d" 
+              ariaLabel="three-dots-loading"
+              wrapperStyle={{}}
+              wrapperClassName=""
+              visible={true}/>
+          }
+        </div>
+    </>
     )
   }
 }

@@ -202,3 +202,13 @@ img {
 .button:focus {
   background-color: #303f9f;
 }
+
+/* container */
+
+.container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}

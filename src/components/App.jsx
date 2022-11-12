@@ -8,8 +8,9 @@ import { Modal } from "./Modal/Modal";
 export class App extends Component {
   state = {
     inputValue: '',
-    page: 1,
+    page: 0,
     showModal: false,
+    bigImg: '',
   }
 
   toggleModal = () => {
@@ -26,17 +27,26 @@ export class App extends Component {
     this.setState({ page })
   }
 
+  onClick = (e) => {
+    const bigImg = e.target.id;
+    this.setState({ bigImg });
+    this.toggleModal();
+  }
+
   render() {
-    const { inputValue, page, showModal } = this.state;
+    const { inputValue, page, showModal, bigImg } = this.state;
     return <>
       <Searchbar onSubmit={this.handleFormSubmit}/>
       <ImageGallery 
+        onClick={this.onClick}
         inputValue={inputValue}
         changePageFoo={this.changePage}
         page={page}
       />
 
-      {showModal && <Modal onClose={this.toggleModal}/>}   
+      {showModal && <Modal 
+      bigImg={bigImg}
+      onClose={this.toggleModal}/>}   
 
       <ToastContainer position="top-right"
         autoClose={3000} theme="dark"/>
