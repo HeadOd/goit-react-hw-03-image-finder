@@ -1,9 +1,14 @@
 import { Component } from "react";
 import { ToastContainer } from 'react-toastify';
+import axios from "axios";
+import { toast } from 'react-toastify';
+import { ThreeDots } from 'react-loader-spinner';
 
 import { Searchbar } from "./Searchbar/Searchbar";
 import { ImageGallery } from "./ImageGallery/ImageGallery";
 import { Modal } from "./Modal/Modal";
+import { URL, params } from "./API/API";
+import { BtnLoadMore } from "./btnLoadMore/btnLoadMore";
 
 export class App extends Component {
   state = {
@@ -11,6 +16,43 @@ export class App extends Component {
     page: 0,
     showModal: false,
     bigImg: '',
+    isLoading: false,
+    error: null,
+    gallery: [],
+  }
+
+  async componentDidUpdate(prevProps, prevState) { 
+    if (prevState.inputValue !== this.state.inputValue) {
+      this.setState({ gallery: []})
+    }
+    
+    if (prevState.inputValue !== this.state.inputValue || prevState.page !== this.state.page) {
+      try {
+        this.setState({ isLoading: true});
+        const response = await axios.get(`${URL}${params}${this.state.page}&q=${this.state.inputValue}`);
+        this.setState(({gallery}) => ({ gallery : [...gallery, ...response.data.hits]}));
+
+        if(response.data.hits.length === 0) {
+          this.setState({ gallery : []});
+          toast.info(`За цим запитом нічого не знайдено!`, {
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        })
+        }
+      } catch (error) {
+        this.setState({ error });
+      } finally {
+        this.setState({ isLoading: false });
+      }  
+    }
+  }
+
+  LoadMore = () => {
+    this.setState({ page: this.state.page + 1 });
   }
 
   toggleModal = () => {
@@ -23,10 +65,6 @@ export class App extends Component {
     this.setState({ inputValue, page: 1 });
   }
 
-  changePage = page => {
-    this.setState({ page })
-  }
-
   onClick = (e) => {
     const bigImg = e.target.id;
     this.setState({ bigImg });
@@ -34,22 +72,35 @@ export class App extends Component {
   }
 
   render() {
-    const { inputValue, page, showModal, bigImg } = this.state;
+    const { gallery, isLoading, showModal, bigImg, error } = this.state;
     return <>
       <Searchbar onSubmit={this.handleFormSubmit}/>
-      <ImageGallery 
+      { gallery.length > 1 && <ImageGallery 
         onClick={this.onClick}
-        inputValue={inputValue}
-        changePageFoo={this.changePage}
-        page={page}
-      />
-
+        gallery={gallery}
+        error={error}
+      />}
+    
       {showModal && <Modal 
       bigImg={bigImg}
       onClose={this.toggleModal}/>}   
 
+      <div className='container'>
+        { gallery.length > 11 && <BtnLoadMore onClick={this.LoadMore}/>}   
+        { isLoading && <ThreeDots 
+            height="80" 
+            width="80" 
+            radius="9"
+            color="#4fa94d" 
+            ariaLabel="three-dots-loading"
+            wrapperStyle={{}}
+            wrapperClassName=""
+            visible={true}/>
+        }
+        
       <ToastContainer position="top-right"
         autoClose={3000} theme="dark"/>
+      </div>
     </>
     
   }
