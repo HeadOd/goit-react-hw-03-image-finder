@@ -19,6 +19,7 @@ export class App extends Component {
     isLoading: false,
     error: null,
     gallery: [],
+    buttonHide: 0,
   }
 
   async componentDidUpdate(prevProps, prevState) { 
@@ -31,6 +32,8 @@ export class App extends Component {
         this.setState({ isLoading: true});
         const response = await axios.get(`${URL}${params}${this.state.page}&q=${this.state.inputValue}`);
         this.setState(({gallery}) => ({ gallery : [...gallery, ...response.data.hits]}));
+        const numberPageWhenButtonHide = Math.ceil(response.data.totalHits / 12);
+        this.setState({ buttonHide: numberPageWhenButtonHide });
 
         if(response.data.hits.length === 0) {
           this.setState({ gallery : []});
@@ -72,7 +75,8 @@ export class App extends Component {
   }
 
   render() {
-    const { gallery, isLoading, showModal, bigImg, error } = this.state;
+    const { gallery, isLoading, showModal, bigImg, error, buttonHide, page } = this.state;
+
     return <>
       <Searchbar onSubmit={this.handleFormSubmit}/>
       { gallery.length > 1 && <ImageGallery 
@@ -86,7 +90,7 @@ export class App extends Component {
       onClose={this.toggleModal}/>}   
 
       <div className='container'>
-        { gallery.length > 11 && <BtnLoadMore onClick={this.LoadMore}/>}   
+        { gallery.length > 11 && page < buttonHide && <BtnLoadMore onClick={this.LoadMore}/>}   
         { isLoading && <ThreeDots 
             height="80" 
             width="80" 

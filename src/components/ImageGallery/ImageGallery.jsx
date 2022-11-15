@@ -1,11 +1,7 @@
 import { Component } from "react";
-// import axios from "axios";
-// import { ThreeDots } from 'react-loader-spinner';
 import { toast } from 'react-toastify';
 
 import { ImageGalleryItem } from "./ImageGalleryItem/ImageGalleryItem";
-// import { URL, params } from "../API/API";
-// import { BtnLoadMore } from "../btnLoadMore/btnLoadMore";
 
 export class ImageGallery extends Component {
   render() {
